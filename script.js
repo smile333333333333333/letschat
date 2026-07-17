@@ -47,6 +47,9 @@ A happy employee is a productive employee. :)
 
 button.onclick = async () => {
 
+    // Enable browser audio
+    await audioCtx.resume();
+
     button.disabled = true;
     button.style.display = "none";
     status.textContent = "Status: Playing Recording";
@@ -54,24 +57,43 @@ button.onclick = async () => {
     speech.textContent = "";
     speech.classList.add("cursor");
 
+    let glitchPlayed1 = false;
+    let glitchPlayed2 = false;
+
     for (let i = 0; i < message.length; i++) {
 
         speech.textContent += message[i];
 
+        // Typing sound
+        if (message[i] !== " " && message[i] !== "\n") {
+            playType();
+        }
+
         let speed = 40;
 
-        // Dramatic slowdown
         if (message.substring(i).startsWith("They won't tell me"))
             speed = 80;
 
-        // Panic section
         if (message.substring(i).startsWith("WHAT IS IN THE FACTORY?")) {
+
             speech.classList.add("glitch");
             speed = 18;
+
+            if (!glitchPlayed1) {
+                playGlitch();
+                glitchPlayed1 = true;
+            }
         }
 
-        if (message.substring(i).startsWith("WHY ARE THEY SMILING?"))
+        if (message.substring(i).startsWith("WHY ARE THEY SMILING?")) {
+
             speed = 18;
+
+            if (!glitchPlayed2) {
+                playGlitch();
+                glitchPlayed2 = true;
+            }
+        }
 
         if (message.substring(i).startsWith("WHY DID THEY K-"))
             speed = 8;
@@ -79,8 +101,10 @@ button.onclick = async () => {
         await sleep(speed);
     }
 
-    // Abrupt interruption
     await sleep(500);
+
+    // Loud interruption
+    playInterrupt();
 
     speech.textContent = "█";
     await sleep(120);
@@ -92,20 +116,32 @@ button.onclick = async () => {
     await sleep(800);
 
     speech.textContent = "";
+
     speech.classList.remove("glitch");
     speech.classList.add("red");
 
     status.textContent = "Status: SYSTEM OVERRIDE";
 
+    // System beep
+    playBeep();
+
     for (let i = 0; i < termination.length; i++) {
 
         speech.textContent += termination[i];
+
+        if (termination[i] !== " " && termination[i] !== "\n") {
+            playType();
+        }
 
         await sleep(18);
     }
 
     speech.classList.add("cursor");
 };
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 function sleep(ms){
     return new Promise(resolve => setTimeout(resolve, ms));
